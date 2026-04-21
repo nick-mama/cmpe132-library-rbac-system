@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+      }
+
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+      }
+
+      .app-header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .app-header h1 {
+        font-size: 2rem;
+        color: #1a1a2e;
+      }
+
+      .app-header p {
+        margin-top: 6px;
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+
+      @media (max-width: 600px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: #ffffff;
+        border: 1px solid #dde1e7;
+        border-radius: 10px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card h2 {
+        font-size: 1.1rem;
+        color: #1a1a2e;
+        border-bottom: 2px solid #e8eaf0;
+        padding-bottom: 10px;
+        margin-bottom: 4px;
+      }
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #555;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        background: #fafafa;
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #4a6fa5;
+        background: #fff;
+      }
+
+      button {
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background-color: #4a6fa5;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          opacity 0.2s;
+        margin-top: 4px;
+      }
+
+      button:hover:not(:disabled) {
+        background-color: #3b5a8a;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      button.btn--danger {
+        background-color: #c0392b;
+      }
+
+      button.btn--danger:hover:not(:disabled) {
+        background-color: #a93226;
+      }
+
+      .msg {
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .msg--ok {
+        background-color: #eafaf1;
+        color: #1e8449;
+        border: 1px solid #a9dfbf;
+      }
+
+      .msg--err {
+        background-color: #fdedec;
+        color: #c0392b;
+        border: 1px solid #f5b7b1;
+      }
+
+      .role-badge {
+        font-size: 0.9rem;
+        color: #333;
+        background: #eef2fb;
+        border: 1px solid #c5cee8;
+        border-radius: 6px;
+        padding: 8px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState } = React;
+      const API = "http://127.0.0.1:5000";
+
+      function Message({ msg }) {
+        if (!msg) return null;
+        return (
+          <p className={`msg ${msg.ok ? "msg--ok" : "msg--err"}`}>{msg.text}</p>
+        );
+      }
+
+      function RegisterSection() {
+        const [form, setForm] = useState({
+          username: "",
+          password: "",
+          role: "student",
+        });
+        const [msg, setMsg] = useState(null);
+        const [loading, setLoading] = useState(false);
+
+        const handleChange = (e) => {
+          setForm({ ...form, [e.target.name]: e.target.value });
+        };
+
+        const handleSubmit = async () => {
+          setLoading(true);
+
+          try {
+            const res = await fetch(`${API}/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(form),
+            });
+
+            const data = await res.json();
+
+            setMsg({
+              ok: res.ok,
+              text: data.message || data.error || "Request completed.",
+            });
+
+            if (res.ok) {
+              setForm({
+                username: "",
+                password: "",
+                role: "student",
+              });
+            }
+          } catch (err) {
+            setMsg({ ok: false, text: "Could not reach the server." });
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return (
+          <section className="card">
+            <h2>Register User</h2>
+
+            <label>Username</label>
+            <input
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              placeholder="e.g. jsmith"
+            />
+
+            <label>Password</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+            />
+
+            <label>Role</label>
+            <select name="role" value={form.role} onChange={handleChange}>
+              <option value="admin">Admin</option>
+              <option value="librarian">Librarian</option>
+              <option value="student">Student</option>
+            </select>
+
+            <button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Registering..." : "Register"}
+            </button>
+
+            <Message msg={msg} />
+          </section>
+        );
+      }
+
+      function LoginSection() {
+        const [form, setForm] = useState({ username: "", password: "" });
+        const [msg, setMsg] = useState(null);
+        const [role, setRole] = useState(null);
+        const [loading, setLoading] = useState(false);
+
+        const handleChange = (e) => {
+          setForm({ ...form, [e.target.name]: e.target.value });
+        };
+
+        const handleSubmit = async () => {
+          setLoading(true);
+          setRole(null);
+
+          try {
+            const res = await fetch(`${API}/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(form),
+            });
+
+            const data = await res.json();
+
+            setMsg({
+              ok: res.ok,
+              text: data.message || data.error || "Login request completed.",
+            });
+
+            if (res.ok && data.role) {
+              setRole(data.role);
+            }
+          } catch (err) {
+            setMsg({ ok: false, text: "Could not reach the server." });
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return (
+          <section className="card">
+            <h2>Login</h2>
+
+            <label>Username</label>
+            <input
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              placeholder="e.g. jsmith"
+            />
+
+            <label>Password</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+            />
+
+            <button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+            <Message msg={msg} />
+
+            {role && (
+              <p className="role-badge">
+                Role: <strong>{role}</strong>
+              </p>
+            )}
+          </section>
+        );
+      }
+
+      function CheckPermissionSection() {
+        const [form, setForm] = useState({ username: "", action: "" });
+        const [msg, setMsg] = useState(null);
+        const [loading, setLoading] = useState(false);
+
+        const handleChange = (e) => {
+          setForm({ ...form, [e.target.name]: e.target.value });
+        };
+
+        const handleSubmit = async () => {
+          setLoading(true);
+
+          try {
+            const res = await fetch(`${API}/check-permission`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(form),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+              const text = data.allowed
+                ? `${data.username} is allowed to perform "${data.action}" as ${data.role}.`
+                : `${data.username} is NOT allowed to perform "${data.action}" as ${data.role}.`;
+
+              setMsg({ ok: data.allowed, text });
+            } else {
+              setMsg({
+                ok: false,
+                text: data.error || "Permission check failed.",
+              });
+            }
+          } catch (err) {
+            setMsg({ ok: false, text: "Could not reach the server." });
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return (
+          <section className="card">
+            <h2>Check Permission</h2>
+
+            <label>Username</label>
+            <input
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              placeholder="e.g. jsmith"
+            />
+
+            <label>Action</label>
+            <input
+              name="action"
+              value={form.action}
+              onChange={handleChange}
+              placeholder="e.g. view_books"
+            />
+
+            <button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Checking..." : "Check Permission"}
+            </button>
+
+            <Message msg={msg} />
+          </section>
+        );
+      }
+
+      function DeleteUserSection() {
+        const [username, setUsername] = useState("");
+        const [msg, setMsg] = useState(null);
+        const [loading, setLoading] = useState(false);
+
+        const handleSubmit = async () => {
+          setLoading(true);
+
+          try {
+            const res = await fetch(`${API}/delete-user`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username }),
+            });
+
+            const data = await res.json();
+
+            setMsg({
+              ok: res.ok,
+              text: data.message || data.error || "Delete request completed.",
+            });
+
+            if (res.ok) {
+              setUsername("");
+            }
+          } catch (err) {
+            setMsg({ ok: false, text: "Could not reach the server." });
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return (
+          <section className="card">
+            <h2>Delete User</h2>
+
+            <label>Username</label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="e.g. jsmith"
+            />
+
+            <button
+              className="btn--danger"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? "Deleting..." : "Delete User"}
+            </button>
+
+            <Message msg={msg} />
+          </section>
+        );
+      }
+
+      function App() {
+        return (
+          <div className="app">
+            <header className="app-header">
+              <h1>Library Management System</h1>
+              <p>School Project - User and Permission Manager</p>
+            </header>
+
+            <main className="grid">
+              <RegisterSection />
+              <LoginSection />
+              <CheckPermissionSection />
+              <DeleteUserSection />
+            </main>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
