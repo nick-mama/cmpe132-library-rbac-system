@@ -128,7 +128,3 @@ bcrypt includes salting, which ensures:
 
 - This project is for educational purposes.
 - The system is simplified for demonstration of access control concepts.
-
-```
-
-```
