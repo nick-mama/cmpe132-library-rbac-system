@@ -43,8 +43,6 @@ This project is a web-based access control system for a fictional library (SJSU_
 
 ---
 
-``md
-
 ## Backend Setup
 
 1. Navigate to the backend folder:
@@ -74,8 +72,6 @@ python app.py
 The Flask server runs at http://127.0.0.1:5000
 
 ---
-
-``md
 
 ## Frontend
 
@@ -130,13 +126,6 @@ bcrypt includes salting, which ensures:
 
 - identical passwords produce different hashes
 - improved protection against attacks
-
----
-
-## Use of AI Tools
-
-Claude.ai was used to assist in generating the frontend user interface, including layout and form structure.  
-All backend logic, authentication, RBAC implementation, and security features were implemented independently.
 
 ---
 
