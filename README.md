@@ -81,9 +81,8 @@ Open the frontend by launching:
 index.html
 ```
 
-```
-
 You can:
+
 - Open it directly in a browser
 - Use VS Code Live Server
 
@@ -98,16 +97,12 @@ You can:
 
 ---
 
-``md
 ## Data Storage
 
 User data is stored in:
-```
 
+```
 backend/users.json
-
-```
-
 ```
 
 Each user record includes:
@@ -133,3 +128,7 @@ bcrypt includes salting, which ensures:
 
 - This project is for educational purposes.
 - The system is simplified for demonstration of access control concepts.
+
+```
+
+```
